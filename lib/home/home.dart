@@ -13,29 +13,75 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  int _selectedIndex = 0;
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  String getHomeImageUrl() {
-    if (_selectedIndex == 0) {
-      return "assets/images/data_true.png";
-    } else {
-      return "assets/images/data_false.png";
+  final int locationLeft = 0x100000;
+  final int locationRight = 0x200000;
+
+  //获取图标与文字
+  List<Widget> getTabWidget(int location) {
+    return [
+      const Padding(
+        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+      ),
+      Image.asset(
+        getImageUrl(location),
+        width: 25,
+        height: 25,
+      ),
+      getTextWidget(location),
+      const Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
+      ),
+    ];
+  }
+
+  //获取文字控件
+  Widget getTextWidget(int location) {
+    if(location == locationLeft){
+      if (_selectedIndex == 0) {
+        return const Text("数据", style: TextStyle(color: Colors.mainBlue));
+      } else {
+        return const Text("数据", style: TextStyle(color: Colors.black));
+      }
+    }else{
+      if (_selectedIndex == 0) {
+        return const Text("我的", style: TextStyle(color: Colors.black));
+      } else {
+        return const Text("我的", style: TextStyle(color: Colors.mainBlue));
+      }
     }
   }
 
-  String getMineImageUrl() {
-    if (_selectedIndex == 1) {
-      return "assets/images/mine_true.png";
-    } else {
-      return "assets/images/mine_false.png";
+  //获取图片路径
+  String getImageUrl(int location) {
+    if(location == locationLeft){
+      if (_selectedIndex == 0) {
+        return "assets/images/data_true.png";
+      } else {
+        return "assets/images/data_false.png";
+      }
+    }else{
+      if (_selectedIndex == 1) {
+        return "assets/images/mine_true.png";
+      } else {
+        return "assets/images/mine_false.png";
+      }
     }
   }
 
-  int _selectedIndex = 0;
+  //中间按钮被点击
+  void _bottomClickListener() {
+    setState(() {});
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,28 +92,32 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        // 底部导航
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              getHomeImageUrl(),
-              width: 25,
-              height: 25,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _bottomClickListener,
+        tooltip: '蓝牙',
+        child: Image.asset(
+          "assets/images/connect.png",
+          width: 25,
+          height: 25,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        shape: const CircularNotchedRectangle(), // 底部导航栏打一个圆形的洞
+        child: Row(
+          children: [
+            Column(mainAxisSize: MainAxisSize.min,
+                children:getTabWidget(locationLeft)
             ),
-            label: "数据",
-          ),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                getMineImageUrl(),
-                width: 25,
-                height: 25,
-              ),
-              label: "我的"),
-        ],
-        currentIndex: _selectedIndex,
-        fixedColor: Colors.mainBlue,
-        onTap: _onItemTapped,
+            const SizedBox(), //中间位置空出
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: getTabWidget(locationRight),
+            ),
+          ],
+          mainAxisAlignment: MainAxisAlignment.spaceAround, //均分底部导航栏横向空间
+        ),
       ),
     );
   }
