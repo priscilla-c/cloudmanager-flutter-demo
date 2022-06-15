@@ -87,3 +87,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  assets:
+    - assets/images/data_false.png
+    - assets/images/data_true.png
+    - assets/images/mine_false.png
+    - assets/images/mine_true.png
