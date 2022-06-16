@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../home/data.dart';
+import '../data/data.dart';
 import '../mine/mine.dart';
 
-///Created by Zebra-RD张先杰 on 2022年6月15日10:33:40
+///Created by Zebra-RD張先傑 on 2022年6月15日10:33:40
 ///Description:APP入口 在Android中冷启动是确实是要比原生慢一大截 热启动倒是感觉不到差异
 
 void main() {
@@ -11,17 +11,20 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  ///关于const的关键字 我个人认为它的功能像是修饰变量的final一样 被final修饰的变量必须初始化并且不能改变变量的值 也就是变成了常量
-  ///而const关键字是用来修饰集合数组以及实例对象的 在创建时被const代替new所修饰的对象将完全不可变
-  ///这个用const修饰而创建的MyApp是作为MyApp类的构造方法来使用的
+  ///關於const的關鍵字 我個人認為它的功能像與final相似 只不過final修飾的是變量 而它是對象
+  ///被const關鍵字修飾的集合數組以及實例對象将完全不可变
+  ///這個用const修飾而創建的MyApp是作為MyApp類的構造方法來使用的
   const MyApp({Key? key}) : super(key: key);
 
-  ///override 与Java/Kotlin无异，继承抽象类或实现接口时必须重写的方法
+  ///override 與Java/Kotlin無異 繼承抽象類或實現接口時必須重寫的方法
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      ///APP 名字 经测试只会改变任务列表中的名字 而不是桌面的名字 桌面APP的名字要到每个不同的项目中去修改 比如Android要到AndroidManifest中修改
+      ///App 名字 經測試只會改變任務列表中的名字 而不是桌面的名字 桌面APP的名字要到生成的不同平台的項目中去修改
+      ///比如Android要到AndroidManifest中修改
       title: '云店长',
+
+      ///應用的主題
       theme: ThemeData(
         ///主题颜色
         primarySwatch: Colors.blue,
@@ -45,28 +48,43 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => MainPageState();
 }
 
-class MainPageState extends State<MainPage> {
+class MainPageState extends State<MainPage>
+    with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: createPage(),
-      floatingActionButton: createActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: createBottomNavigationBar(),
+    ///Data頁面的兩個子頁面名稱
+    List tabs = ["文件", "數據"];
+
+    ///DefaultTabController 用於頭部子導航欄與頁面的配合
+    return DefaultTabController(
+      length: tabs.length,
+
+      ///頁面骨架
+      child: Scaffold(
+        ///與Android的Toolbar有相似之處 但功能更多
+        appBar: createAppBar(tabs),
+
+        ///主體部分 可以配合導航欄進行變動
+        body: createPage(),
+
+        ///與Android的FloatingActionButton類似
+        floatingActionButton: createActionButton(),
+
+        ///將floatingActionButton與bottomNavigationBar配合 嵌入中間
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+        ///與Android的TabLayout與相似之處 導航欄
+        bottomNavigationBar: createBottomNavigationBar(),
+      ),
     );
   }
 
   ///当前的TabLayout Position
   int selectedIndex = 0;
 
-  ///獲取主頁控件
-  Widget createPage() {
-    if (selectedIndex == 0) {
-      return createHomePage();
-    } else {
-      return createMinePage();
-    }
-  }
+  ///用于判断使用哪个组件
+  final int locationLeft = 0x100000;
+  final int locationRight = 0x200000;
 
   ///设置点击时的Position
   void onItemTapped(int index) {
@@ -75,62 +93,54 @@ class MainPageState extends State<MainPage> {
     });
   }
 
-  ///用于判断使用哪个组件
-  final int locationLeft = 0x100000;
-  final int locationRight = 0x200000;
+  ///獲取APPBar控件
+  PreferredSizeWidget createAppBar(List<dynamic> tabs) => AppBar(
+        toolbarHeight: 0,
+        bottom: selectedIndex == 0
+            ? TabBar(
+                tabs: tabs.map((e) => Tab(text: e)).toList(),
+              )
+            : null,
+      );
+
+  ///獲取主頁控件 雖說Dart沒有對if語句做優化 但是我們可以使用ternary運算符配合表達式來簡化代碼
+  Widget createPage() =>
+      selectedIndex == 0 ? createHomePage() : createMinePage();
 
   ///创建底部单个TabLayout
-  List<Widget> createTabWidget(int location) {
-    return [
-      ///加载本地图片
-      Image.asset(
-        getImageUrl(location),
-        width: 25,
-        height: 25,
-      ),
+  List<Widget> createTabWidget(int location) => [
+        ///加载本地图片
+        creteImageWidget(location),
 
-      ///获取文字控件
-      createTextWidget(location),
-    ];
-  }
+        ///获取文字控件
+        createTextWidget(location),
+      ];
 
   ///创建文字控件
-  Widget createTextWidget(int location) {
-    if (location == locationLeft) {
-      if (selectedIndex == 0) {
-        return const Text("数据",
-            style: TextStyle(color: Colors.mainBlue, fontSize: 12));
-      } else {
-        return const Text("数据",
-            style: TextStyle(color: Colors.black, fontSize: 12));
-      }
-    } else {
-      if (selectedIndex == 0) {
-        return const Text("我的",
-            style: TextStyle(color: Colors.black, fontSize: 12));
-      } else {
-        return const Text("我的",
-            style: TextStyle(color: Colors.mainBlue, fontSize: 12));
-      }
-    }
-  }
+  Widget createTextWidget(int location) =>
+      Text(location == locationLeft ? "數據" : "我的",
+          style: TextStyle(
+              color: location == locationLeft
+                  ? selectedIndex == 0
+                      ? Colors.mainBlue
+                      : Colors.black
+                  : selectedIndex == 1
+                      ? Colors.mainBlue
+                      : Colors.black,
+              fontSize: 12));
 
   ///获取图片路径
-  String getImageUrl(int location) {
-    if (location == locationLeft) {
-      if (selectedIndex == 0) {
-        return "assets/images/data_true.png";
-      } else {
-        return "assets/images/data_false.png";
-      }
-    } else {
-      if (selectedIndex == 1) {
-        return "assets/images/mine_true.png";
-      } else {
-        return "assets/images/mine_false.png";
-      }
-    }
-  }
+  Widget creteImageWidget(int location) => Image.asset(
+        location == locationLeft
+            ? selectedIndex == 0
+                ? "assets/images/data_true.png"
+                : "assets/images/data_false.png"
+            : selectedIndex == 1
+                ? "assets/images/mine_true.png"
+                : "assets/images/mine_false.png",
+        width: 25,
+        height: 25,
+      );
 
   ///中间按钮被点击
   void bottomClickListener() {}
@@ -196,9 +206,9 @@ class MainPageState extends State<MainPage> {
             },
           ),
         ],
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
 
         ///均分底部导航栏横向空间
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
       ),
     );
   }
