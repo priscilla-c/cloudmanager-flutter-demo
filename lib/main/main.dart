@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/data.dart';
 import '../mine/mine.dart';
@@ -27,7 +29,16 @@ class MyApp extends StatelessWidget {
       ///應用的主題
       theme: ThemeData(
         ///主题颜色
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.mainwhite,
+
+        ///点击的背景高亮颜色,处理阴影
+        highlightColor: Colors.transparent,
+
+        ///設置Scaffold下的Material默認顏色，用于materia應用程序或app內頁面的背景色 相當於Android的windowBackground
+        scaffoldBackgroundColor: Colors.mainBack,
+
+        /// 点击时的水波纹颜色设置为透明
+        splashColor: Colors.transparent,
       ),
 
       ///APP 首页路由
@@ -53,7 +64,7 @@ class MainPageState extends State<MainPage>
   @override
   Widget build(BuildContext context) {
     ///Data頁面的兩個子頁面名稱
-    List tabs = ["文件", "數據"];
+    List tabs = ["文件", "数据"];
 
     ///DefaultTabController 用於頭部子導航欄與頁面的配合
     return DefaultTabController(
@@ -95,10 +106,54 @@ class MainPageState extends State<MainPage>
 
   ///獲取APPBar控件
   PreferredSizeWidget createAppBar(List<dynamic> tabs) => AppBar(
+        ///去掉標題佔用的距離
         toolbarHeight: 0,
+
+        ///設置狀態欄
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          ///設置狀態欄的背景顏色
+          statusBarColor: Colors.white,
+
+          ///設置狀態欄的文字顏色
+          statusBarIconBrightness: Brightness.dark,
+        ),
+
+        ///去掉陰影效果
+        elevation: 0.0,
         bottom: selectedIndex == 0
             ? TabBar(
-                tabs: tabs.map((e) => Tab(text: e)).toList(),
+                padding: const EdgeInsets.only(bottom: 6),
+                tabs: [
+                  Column(
+                    ///文字基於佈局底部對其(縱向)
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(tabs[0]),
+
+                      ///改變文字與下劃線的距離
+                      const Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 3)),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(tabs[1]),
+                      const Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 3)),
+                    ],
+                  ),
+                ],
+                isScrollable: true,
+                indicatorSize: TabBarIndicatorSize.label,
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.mainGrey,
+                indicatorColor: Colors.mainBlue,
+                labelStyle:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.normal, fontSize: 14),
+                // indicator: BoxDecoration(
+                //     borderRadius: BorderRadius.circular(2),
+                //     color: const Color.fromRGBO(255, 221, 107, 1)),
               )
             : null,
       );
@@ -118,7 +173,7 @@ class MainPageState extends State<MainPage>
 
   ///创建文字控件
   Widget createTextWidget(int location) =>
-      Text(location == locationLeft ? "數據" : "我的",
+      Text(location == locationLeft ? "数据" : "我的",
           style: TextStyle(
               color: location == locationLeft
                   ? selectedIndex == 0
